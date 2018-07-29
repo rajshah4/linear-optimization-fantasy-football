@@ -1,6 +1,9 @@
 library(lpSolve)
 library(lpSolveAPI)
-
+setwd("~/Code/linear-optimization-fantasy-football/")
+getSquad ("2016week8sun.csv")
+csvfile = "2016week8sun.csv"
+minSalary = 0
 getSquad = function(csvfile, delPlayer = NULL, minSalary = 0){
   rawTable = read.csv(csvfile, stringsAsFactors = F)
   #creating binary variables
@@ -23,17 +26,17 @@ getSquad = function(csvfile, delPlayer = NULL, minSalary = 0){
   con <- matrix(cons, nrow=7, byrow=TRUE)
   allcons <- rbind(con, con)
   #set right hand side coefficients for both max and min
-  maxrhs <- c(1,3,4,2,7,1,"50000") #max salary,qb,rb,wr,te,flex,def
-  minrhs <- c(1,2,3,1,7,1, minSalary) #minsalary, #qb, rb, wr, te, flex, def
+  maxrhs <- c(1,3,4,2,7,1,"50000") #qb,rb,wr,te,flex,def,maxsalary
+  minrhs <- c(1,2,3,1,7,1, "0")
   maxrel <- c("<=","<=","<=","<=","<=","<=","<=")
   minrel <- c(">=", ">=",">=",">=",">=",">=",">=")
   #all final variables
   obj <- nfl$DK.points
-  rel <- c(maxrel,minrel)
+  rel <- c(maxrel,minrel)s
   rhs <- c(maxrhs, minrhs)
   mylp<- lp("max",obj,allcons,rel,rhs,all.bin=TRUE)
   #creating table just for the players that are in optimal solution
-  solindex <- which(mylp$solution==1)
+  solindex <- which(mylp$solution==2)
   optsolution <- nfl[solindex,]
   #cleaning up table and adding sums
   optsolution <- optsolution[,c(-1,-2,-3,-7,-11:-16)]
